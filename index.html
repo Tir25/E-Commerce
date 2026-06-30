@@ -173,10 +173,31 @@
         .cinematic-pan {
             transition: transform 15s ease-out;
         }
+        video.cinematic-pan {
+            transform: scale(1.15) translateY(4%);
+        }
         .group:hover .cinematic-pan,
         .reveal-wrap:hover .cinematic-pan,
         .cinematic-pan.hero-video {
             transform: scale(1.15);
+        }
+        .group:hover video.cinematic-pan,
+        .reveal-wrap:hover video.cinematic-pan,
+        video.cinematic-pan.hero-video {
+            transform: scale(1.25) translateY(4%);
+        }
+
+        .product-thumbnail, .product-video {
+            transition: opacity 0.5s ease;
+        }
+        .video-card.is-playing .product-thumbnail,
+        .video-card:hover .product-thumbnail {
+            opacity: 0;
+        }
+        .video-card.is-playing .product-video,
+        .video-card:hover .product-video {
+            opacity: 1;
+            z-index: 15;
         }
 
         /* Scroll indicator animation */
@@ -327,7 +348,8 @@
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16">
                     <div class="md:col-span-7 group cursor-none nav-link" data-target="page-product" data-product="midnight-gown">
                         <div class="reveal-wrap aspect-[3/4] w-full relative video-card bg-luxury-black">
-                            <img src="assets/midnight_gown.png" class="w-full h-full object-cover reveal-img absolute inset-0 z-10 cinematic-pan pointer-events-none" alt="The Midnight Gown">
+                            <img src="assets/midnight_gown.png" class="w-full h-full object-cover reveal-img absolute inset-0 z-10 cinematic-pan pointer-events-none product-thumbnail" alt="The Midnight Gown">
+                            <video src="now_create_a_beautiful_and_cin.mp4" class="w-full h-full object-cover reveal-img absolute inset-0 z-0 cinematic-pan pointer-events-none product-video opacity-0" muted loop playsinline preload="auto"></video>
                             <div class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8 z-20 pointer-events-none">
                                 <button class="hover-target border border-white text-white px-6 py-3 font-sans text-xs tracking-widest uppercase w-max hover:bg-white hover:text-black transition-colors pointer-events-auto">Quick View</button>
                             </div>
@@ -354,6 +376,22 @@
                                 <p class="font-sans text-sm text-gray-400 mt-2">Tailored Wool Blend</p>
                             </div>
                             <span class="font-sans text-sm text-luxury-gold">$1,890</span>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-12 group cursor-none nav-link mt-8 md:mt-16" data-target="page-product" data-product="light-blue-gown">
+                        <div class="reveal-wrap aspect-[16/9] w-full relative video-card bg-luxury-black">
+                            <video src="now_create_video_for_this_imag.mp4" class="w-full h-full object-cover reveal-img absolute inset-0 z-10 cinematic-pan pointer-events-none" muted loop playsinline></video>
+                            <div class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8 z-20 pointer-events-none">
+                                <button class="hover-target border border-white text-white px-6 py-3 font-sans text-xs tracking-widest uppercase w-max hover:bg-white hover:text-black transition-colors pointer-events-auto">Quick View</button>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex justify-between items-start">
+                            <div>
+                                <h3 class="font-serif text-2xl text-white">The Light Blue Gown</h3>
+                                <p class="font-sans text-sm text-gray-400 mt-2">Ethereal Silk & Tulle</p>
+                            </div>
+                            <span class="font-sans text-sm text-luxury-gold">$2,850</span>
                         </div>
                     </div>
                 </div>
@@ -418,7 +456,8 @@
                         <!-- Shop Item 1 -->
                         <div class="group cursor-none nav-link video-card" data-target="page-product" data-product="midnight-gown">
                             <div class="aspect-[3/4] w-full relative overflow-hidden bg-neutral-900 mb-6">
-                                <img src="assets/midnight_gown.png" class="w-full h-full object-cover cinematic-pan pointer-events-none" alt="The Midnight Gown">
+                                <img src="assets/midnight_gown.png" class="w-full h-full object-cover cinematic-pan pointer-events-none product-thumbnail absolute inset-0 z-10" alt="The Midnight Gown">
+                                <video src="now_create_a_beautiful_and_cin.mp4" class="w-full h-full object-cover cinematic-pan pointer-events-none product-video opacity-0 absolute inset-0 z-0" muted loop playsinline preload="auto"></video>
                                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none z-20">
                                     <span class="font-sans text-xs tracking-[0.2em] uppercase text-white border border-white px-6 py-3 hover-target hover:bg-white hover:text-black transition-colors pointer-events-auto">View Details</span>
                                 </div>
@@ -548,6 +587,23 @@
                                     <p class="font-sans text-xs text-gray-400 mt-1">Full-Grain Leather</p>
                                 </div>
                                 <span class="font-sans text-sm text-luxury-gold">$2,800</span>
+                            </div>
+                        </div>
+
+                        <!-- Shop Item 9 -->
+                        <div class="group cursor-none nav-link video-card" data-target="page-product" data-product="light-blue-gown">
+                            <div class="aspect-[3/4] w-full relative overflow-hidden bg-neutral-900 mb-6">
+                                <video src="now_create_video_for_this_imag.mp4" class="w-full h-full object-cover cinematic-pan pointer-events-none" muted loop playsinline></video>
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none z-20">
+                                    <span class="font-sans text-xs tracking-[0.2em] uppercase text-white border border-white px-6 py-3 hover-target hover:bg-white hover:text-black transition-colors pointer-events-auto">View Details</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-serif text-xl text-white">The Light Blue Gown</h3>
+                                    <p class="font-sans text-xs text-gray-400 mt-1">Silk & Tulle</p>
+                                </div>
+                                <span class="font-sans text-sm text-luxury-gold">$2,850</span>
                             </div>
                         </div>
 
@@ -736,7 +792,8 @@
             'avantgarde-jacket': { title: 'Avant-Garde Jacket', price: '$1,450', priceNum: 1450, image: 'assets/avantgarde_jacket.png', material: 'Structured Neoprene', desc: 'The future of tailoring. This avant-garde jacket uses bonded neoprene with geometric laser-cut panels, creating sharp architectural lines that defy conventional fashion boundaries.' },
             'cashmere-overcoat': { title: 'Cashmere Overcoat', price: '$4,100', priceNum: 4100, image: 'assets/cashmere_overcoat.png', material: 'Pure Mongolian Cashmere', desc: 'Unmatched warmth, unrivaled softness. Sourced from high-altitude Mongolian herds, this double-faced cashmere overcoat envelopes you in cloud-like luxury with a clean, minimalist silhouette.' },
             'summer-silhouette': { title: 'Summer Silhouette', price: '$950', priceNum: 950, image: 'assets/summer_silhouette.png', material: 'Lightweight Linen', desc: 'Effortless summer elegance. This lightweight linen silhouette captures the ease of Mediterranean living with its relaxed drape and naturally breathable fabric, perfect for warm evenings.' },
-            'obsidian-biker': { title: 'The Obsidian Biker', price: '$2,800', priceNum: 2800, image: 'assets/obsidian_biker.png', material: 'Full-Grain Leather', desc: 'Rebellion refined. Crafted from Italian full-grain leather with hand-polished silver hardware, this biker jacket balances raw edge with meticulous craftsmanship. Silk-lined for ultimate comfort.' }
+            'obsidian-biker': { title: 'The Obsidian Biker', price: '$2,800', priceNum: 2800, image: 'assets/obsidian_biker.png', material: 'Full-Grain Leather', desc: 'Rebellion refined. Crafted from Italian full-grain leather with hand-polished silver hardware, this biker jacket balances raw edge with meticulous craftsmanship. Silk-lined for ultimate comfort.' },
+            'light-blue-gown': { title: 'The Light Blue Gown', price: '$2,850', priceNum: 2850, image: 'now_create_video_for_this_imag.mp4', material: 'Ethereal Silk & Tulle', desc: 'A vision of pure elegance. This light blue gown is meticulously crafted from ethereal silk and tulle, featuring a sweeping silhouette that captures the essence of a serene summer sky.' }
         };
 
         // --- CART STATE ---
@@ -759,10 +816,14 @@
                 const p = products[item.id];
                 if (!p) return;
                 total += p.priceNum;
+                const mediaHtml = p.image.endsWith('.mp4') 
+                    ? `<video src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" muted loop playsinline autoplay></video>`
+                    : `<img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="${p.title}">`;
+                
                 html += `
                 <div class="flex gap-6 group" data-cart-idx="${idx}">
                     <div class="w-24 h-32 bg-neutral-900 overflow-hidden flex-shrink-0">
-                        <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="${p.title}">
+                        ${mediaHtml}
                     </div>
                     <div class="flex flex-col justify-between flex-1">
                         <div>
@@ -1093,8 +1154,10 @@
                         entries.forEach(entry => {
                             if (entry.isIntersecting) {
                                 video.play().catch(err => {});
+                                card.classList.add('is-playing');
                             } else {
                                 video.pause();
+                                card.classList.remove('is-playing');
                             }
                         });
                     }, { threshold: 0.2 });
@@ -1104,6 +1167,7 @@
                     card.addEventListener('mouseenter', () => {
                         playPromise = video.play();
                         if (playPromise !== undefined) playPromise.catch(err => {});
+                        card.classList.add('is-playing');
                     });
                     card.addEventListener('mouseleave', () => {
                         if (playPromise !== undefined) {
@@ -1111,6 +1175,7 @@
                         } else {
                             video.pause(); video.currentTime = 0.001;
                         }
+                        card.classList.remove('is-playing');
                     });
                 }
             }
@@ -1129,8 +1194,37 @@
             // Update product page if navigating to it
             if (targetId === 'page-product' && productSlug && products[productSlug]) {
                 const p = products[productSlug];
-                document.getElementById('product-image').src = p.image;
-                document.getElementById('product-image').alt = p.title;
+                
+                let mediaElement = document.getElementById('product-image') || document.getElementById('product-video');
+                
+                if (p.image.endsWith('.mp4')) {
+                    if (mediaElement.tagName.toLowerCase() === 'img') {
+                        const newVid = document.createElement('video');
+                        newVid.id = 'product-video';
+                        newVid.className = mediaElement.className;
+                        newVid.muted = true;
+                        newVid.loop = true;
+                        newVid.playsInline = true;
+                        newVid.autoplay = true;
+                        newVid.src = p.image;
+                        mediaElement.replaceWith(newVid);
+                    } else {
+                        mediaElement.src = p.image;
+                    }
+                } else {
+                    if (mediaElement.tagName.toLowerCase() === 'video') {
+                        const newImg = document.createElement('img');
+                        newImg.id = 'product-image';
+                        newImg.className = mediaElement.className;
+                        newImg.src = p.image;
+                        newImg.alt = p.title;
+                        mediaElement.replaceWith(newImg);
+                    } else {
+                        mediaElement.src = p.image;
+                        mediaElement.alt = p.title;
+                    }
+                }
+
                 document.getElementById('product-title').textContent = p.title;
                 document.getElementById('product-price').textContent = p.price;
                 document.getElementById('product-description').textContent = p.desc;
