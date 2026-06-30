@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AURA — Redefining luxury fashion through innovative silhouettes, uncompromising craftsmanship, and avant-garde design. Explore our Autumn/Winter collection.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◆</text></svg>">
+    <title>AURA | High-End E-Commerce</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'luxury-black': '#0a0a0a',
+                        'luxury-gold': '#D4AF37',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+            cursor: none; /* Hide default cursor */
+        }
+
+        /* Custom Cursor styling */
+        .cursor-dot {
+            width: 5px;
+            height: 5px;
+            background-color: #D4AF37;
+        }
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+        }
+        .cursor-dot, .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        /* Canvas Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .watch-bezel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 320px;
+            height: 320px;
+            transform: translate(-50%, -50%) scale(0.5);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(10,10,10,0.95) 40%, rgba(20,20,20,0.85) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 30;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(212,175,55,0.1);
+        }
+
+        .watch-ticks {
+            position: absolute;
+            inset: 8px;
+            border-radius: 50%;
+            background: repeating-conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                transparent 4deg,
+                rgba(212, 175, 55, 0.3) 4deg,
+                rgba(212, 175, 55, 0.3) 5deg
+            );
+            -webkit-mask-image: radial-gradient(transparent 68%, black 70%);
+            mask-image: radial-gradient(transparent 68%, black 70%);
+        }
+
+        .orbital-item {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 40;
+        }
+
+        .reveal-wrap {
+            overflow: hidden;
+            clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
+        }
+        .reveal-img {
+            transform: scale(1.2);
+        }
+
+        .horizontal-container {
+            width: 300vw;
+            height: 100vh;
+            display: flex;
+            flex-wrap: nowrap;
+        }
+        .horizontal-panel {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* SPA Page Transitions */
+        .page-view {
+            display: block;
+            width: 100%;
+            opacity: 1;
+            min-height: 100vh;
+        }
+        .page-view.hidden {
+            display: none !important;
+            opacity: 0;
+        }
+
+        /* Cart Sidebar */
+        #cart-overlay {
+            transform: translateX(100%);
+            transition: transform 0.6s cubic-bezier(0.8, 0, 0.2, 1);
+        }
+        #cart-overlay.open {
+            transform: translateX(0);
+        }
+        
+        /* Custom Input Styling */
+        .luxury-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding: 1rem 0;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            transition: border-color 0.3s ease;
+        }
+        .luxury-input:focus {
+            outline: none;
+            border-bottom-color: #D4AF37;
+        }
+
+        /* Cinematic Pan for generated images simulating video */
+        .cinematic-pan {
+            transition: transform 15s ease-out;
+        }
+        .group:hover .cinematic-pan,
+        .reveal-wrap:hover .cinematic-pan,
+        .cinematic-pan.hero-video {
+            transform: scale(1.15);
+        }
+
+        /* Scroll indicator animation */
+        @keyframes scroll {
+            0% { transform: translateY(-100%); }
+            50% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+
+        /* Accordion content transition */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+        .accordion-content.open {
+            max-height: 200px;
+            opacity: 1;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1a1a1a;
+            border: 1px solid rgba(212,175,55,0.3);
+            color: #fff;
+            padding: 1rem 2rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            z-index: 200;
+            opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+            pointer-events: none;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-luxury-gold selection:text-black">
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+    <canvas id="bg-canvas"></canvas>
+
+    <header class="fixed top-0 w-full z-50 p-6 md:p-10 flex justify-between items-center mix-blend-difference text-white">
+        <a href="#" class="font-serif text-2xl tracking-[0.2em] font-bold hover-target nav-link" data-target="page-home">AURA</a>
+        
+        <div class="flex items-center gap-8 relative">
+            <button id="cart-toggle-btn" class="font-sans text-xs tracking-widest uppercase hover-target hover:text-luxury-gold transition-colors">Cart (<span id="cart-count">2</span>)</button>
+            
+            <div class="relative z-50 flex items-center justify-center w-12 h-12">
+                <button id="orbital-toggle" class="w-12 h-12 rounded-full border border-white/40 flex flex-col justify-center items-center gap-1.5 hover-target bg-transparent transition-colors hover:border-luxury-gold group z-50 relative">
+                    <span class="w-5 h-[1px] bg-white transition-colors group-hover:bg-luxury-gold block"></span>
+                    <span class="w-5 h-[1px] bg-white transition-colors group-hover:bg-luxury-gold block"></span>
+                </button>
+                
+                <div id="orbital-hub" class="watch-bezel">
+                    <div class="watch-ticks"></div>
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-luxury-gold shadow-[0_0_15px_#D4AF37]"></div>
+                </div>
+
+                <div id="orbital-items" class="absolute top-1/2 left-1/2 w-0 h-0 z-40">
+                    <a href="#" data-target="page-shop" class="nav-link orbital-item flex flex-col items-center justify-center gap-2 hover-target text-white hover:text-luxury-gold transition-colors">
+                        <span class="w-2 h-2 rounded-full border border-current flex items-center justify-center"><span class="w-0.5 h-0.5 bg-current rounded-full"></span></span>
+                        <span class="text-[9px] uppercase tracking-[0.3em] font-sans whitespace-nowrap">Shop</span>
+                    </a>
+                    <a href="#" data-target="page-legacy" class="nav-link orbital-item flex flex-col items-center justify-center gap-2 hover-target text-white hover:text-luxury-gold transition-colors">
+                        <span class="w-2 h-2 rounded-full border border-current flex items-center justify-center"><span class="w-0.5 h-0.5 bg-current rounded-full"></span></span>
+                        <span class="text-[9px] uppercase tracking-[0.3em] font-sans whitespace-nowrap">Atelier</span>
+                    </a>
+                    <a href="#" data-target="page-legacy" class="nav-link orbital-item flex flex-col items-center justify-center gap-2 hover-target text-white hover:text-luxury-gold transition-colors">
+                        <span class="w-2 h-2 rounded-full border border-current flex items-center justify-center"><span class="w-0.5 h-0.5 bg-current rounded-full"></span></span>
+                        <span class="text-[9px] uppercase tracking-[0.3em] font-sans whitespace-nowrap">Legacy</span>
+                    </a>
+                    <a href="#" data-target="page-care" class="nav-link orbital-item flex flex-col items-center justify-center gap-2 hover-target text-white hover:text-luxury-gold transition-colors">
+                        <span class="w-2 h-2 rounded-full border border-current flex items-center justify-center"><span class="w-0.5 h-0.5 bg-current rounded-full"></span></span>
+                        <span class="text-[9px] uppercase tracking-[0.3em] font-sans whitespace-nowrap">Care</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <aside id="cart-overlay" class="fixed top-0 right-0 w-full md:w-[450px] h-screen bg-luxury-black/95 backdrop-blur-xl border-l border-white/10 z-[100] flex flex-col shadow-2xl">
+        <div class="p-8 flex justify-between items-center border-b border-white/10">
+            <h2 class="font-serif text-2xl text-white italic">Your Atelier</h2>
+            <button id="cart-close-btn" class="text-sm font-sans tracking-widest uppercase text-gray-400 hover-target hover:text-luxury-gold transition-colors">Close</button>
+        </div>
+        
+        <div id="cart-body" class="flex-1 overflow-y-auto p-8 flex flex-col gap-8">
+            <!-- JS will render cart items here -->
+        </div>
+        
+        <div class="p-8 border-t border-white/10 bg-black/50">
+            <div class="flex justify-between items-center mb-6">
+                <span class="font-sans text-xs uppercase tracking-widest text-gray-400">Subtotal</span>
+                <span id="cart-subtotal" class="font-serif text-2xl text-white">$4,340</span>
+            </div>
+            <button class="w-full border border-luxury-gold bg-luxury-gold text-black py-4 font-sans text-xs tracking-[0.2em] uppercase hover-target hover:bg-transparent hover:text-luxury-gold transition-colors duration-300">
+                Secure Checkout
+            </button>
+        </div>
+    </aside>
+
+    <main id="app-container" class="relative z-10">
+        
+        <!-- ================= PAGE: HOME ================= -->
+        <div id="page-home" class="page-view relative w-full">
+            <section class="relative h-screen w-full flex flex-col justify-center items-center overflow-hidden video-card group">
+                <div class="absolute inset-0 z-0 bg-luxury-black pointer-events-none">
+                    <div class="w-full h-full absolute inset-0 overflow-hidden bg-luxury-black">
+                        <video preload="metadata" muted loop playsinline poster="assets/hero_runway.png" class="w-full h-full object-cover opacity-50 hero-video transition-transform duration-[10000ms] ease-out group-hover:scale-110 pointer-events-none" id="hero-bg-video">
+                            <source src="I_am_building_a_e_commerce_web-ezremove.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-luxury-black/30 to-luxury-black"></div>
+                </div>
+                
+                <div class="z-10 text-center px-4 mt-20">
+                    <h2 class="font-sans text-xs md:text-sm tracking-[0.5em] text-luxury-gold uppercase mb-6 split-text">Autumn / Winter</h2>
+                    <h1 class="font-serif text-6xl md:text-8xl lg:text-9xl text-white font-light tracking-tight mix-blend-overlay split-text italic">The New<br>Standard</h1>
+                    <p class="font-sans text-sm md:text-base text-gray-400 max-w-md mx-auto mt-8 font-light split-text">Redefining elegance through innovative silhouettes and uncompromising craftsmanship.</p>
+                    <button class="mt-12 border border-luxury-gold text-luxury-gold px-10 py-4 font-sans text-xs tracking-[0.2em] uppercase hover-target hover:bg-luxury-gold hover:text-black transition-colors duration-300 split-text nav-link" data-target="page-shop">Discover Collection</button>
+                </div>
+                
+                <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-10 opacity-70">
+                    <span class="font-sans text-[9px] uppercase tracking-[0.3em] text-white">Scroll to explore</span>
+                    <div class="w-[1px] h-12 bg-white/30 relative overflow-hidden">
+                        <div class="w-full h-full bg-luxury-gold absolute top-0 left-0 -translate-y-full animate-[scroll_2s_ease-in-out_infinite]"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="py-32 px-6 md:px-20 max-w-screen-2xl mx-auto relative z-10 bg-luxury-black">
+                <div class="flex justify-between items-end mb-24">
+                    <h2 class="font-serif text-4xl md:text-6xl text-white section-title italic">Signature<br>Pieces</h2>
+                    <a href="#" class="font-sans text-xs tracking-widest text-luxury-gold uppercase border-b border-luxury-gold pb-1 hover-target section-title nav-link" data-target="page-shop">View All</a>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16">
+                    <div class="md:col-span-7 group cursor-none nav-link" data-target="page-product" data-product="midnight-gown">
+                        <div class="reveal-wrap aspect-[3/4] w-full relative video-card bg-luxury-black">
+                            <img src="assets/midnight_gown.png" class="w-full h-full object-cover reveal-img absolute inset-0 z-10 cinematic-pan pointer-events-none" alt="The Midnight Gown">
+                            <div class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8 z-20 pointer-events-none">
+                                <button class="hover-target border border-white text-white px-6 py-3 font-sans text-xs tracking-widest uppercase w-max hover:bg-white hover:text-black transition-colors pointer-events-auto">Quick View</button>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex justify-between items-start">
+                            <div>
+                                <h3 class="font-serif text-2xl text-white">The Midnight Gown</h3>
+                                <p class="font-sans text-sm text-gray-400 mt-2">Crushed Velvet & Silk</p>
+                            </div>
+                            <span class="font-sans text-sm text-luxury-gold">$2,450</span>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-5 md:mt-48 group cursor-none nav-link" data-target="page-product" data-product="obsidian-trench">
+                        <div class="reveal-wrap aspect-[4/5] w-full relative video-card bg-luxury-black">
+                            <img src="assets/obsidian_trench.png" class="w-full h-full object-cover reveal-img absolute inset-0 z-10 cinematic-pan pointer-events-none" alt="Obsidian Trench">
+                            <div class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8 z-20 pointer-events-none">
+                                <button class="hover-target border border-white text-white px-6 py-3 font-sans text-xs tracking-widest uppercase w-max hover:bg-white hover:text-black transition-colors pointer-events-auto">Quick View</button>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex justify-between items-start">
+                            <div>
+                                <h3 class="font-serif text-2xl text-white">Obsidian Trench</h3>
+                                <p class="font-sans text-sm text-gray-400 mt-2">Tailored Wool Blend</p>
+                            </div>
+                            <span class="font-sans text-sm text-luxury-gold">$1,890</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="py-40 px-6 relative flex justify-center items-center overflow-hidden bg-luxury-black">
+                <div class="absolute inset-0 opacity-20 parallax-bg w-full h-[120%] -top-[10%] pointer-events-none">
+                    <img src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=2000&auto=format&fit=crop" alt="Fabric Texture" class="w-full h-full object-cover">
+                </div>
+                <div class="relative z-10 max-w-4xl text-center">
+                    <p class="font-serif text-3xl md:text-5xl lg:text-6xl text-white leading-tight quote-text italic">
+                        "True luxury is not loud. It is the quiet confidence of perfect execution and flawless materials."
+                    </p>
+                    <div class="mt-12 w-[1px] h-24 bg-luxury-gold mx-auto quote-text"></div>
+                </div>
+            </section>
+
+            <section id="lookbook-wrapper" class="relative bg-luxury-black h-screen overflow-hidden hidden md:block">
+                <div id="horizontal-scroll" class="horizontal-container flex h-full">
+                    <div class="horizontal-panel w-screen h-full flex-shrink-0 relative group">
+                        <img src="https://images.unsplash.com/photo-1509631179647-0c9528c628ea?q=80&w=1973&auto=format&fit=crop" class="w-full h-full object-cover opacity-60" alt="Look 1">
+                        <div class="absolute inset-0 flex flex-col items-center justify-center z-10">
+                            <h3 class="font-sans text-xs tracking-[0.5em] text-luxury-gold uppercase mb-4">Chapter I</h3>
+                            <h2 class="font-serif text-7xl text-white italic">The Silk Road</h2>
+                        </div>
+                    </div>
+                    <div class="horizontal-panel w-screen h-full flex-shrink-0 relative group">
+                        <img src="https://images.unsplash.com/photo-1524041255072-7da0525d6b34?q=80&w=2080&auto=format&fit=crop" class="w-full h-full object-cover opacity-60" alt="Look 2">
+                        <div class="absolute inset-0 flex flex-col items-center justify-center z-10">
+                            <h3 class="font-sans text-xs tracking-[0.5em] text-luxury-gold uppercase mb-4">Chapter II</h3>
+                            <h2 class="font-serif text-7xl text-white italic">Urban Monolith</h2>
+                        </div>
+                    </div>
+                    <div class="horizontal-panel w-screen h-full flex-shrink-0 relative group">
+                        <img src="https://images.unsplash.com/photo-1485230895905-efd57be4f5be?q=80&w=1964&auto=format&fit=crop" class="w-full h-full object-cover opacity-60" alt="Look 3">
+                        <div class="absolute inset-0 flex flex-col items-center justify-center z-10">
+                            <h3 class="font-sans text-xs tracking-[0.5em] text-luxury-gold uppercase mb-4">Chapter III</h3>
+                            <h2 class="font-serif text-7xl text-white italic">Eternal Night</h2>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="page-shop" class="page-view hidden bg-luxury-black pt-32 pb-24 px-6 md:px-20 z-10 relative">
+            <div class="max-w-screen-2xl mx-auto">
+                <h1 class="font-serif text-5xl md:text-7xl text-white italic mb-16 mt-10">The Collection</h1>
+                <div class="flex flex-col md:flex-row gap-16">
+                    <!-- Filters Sidebar -->
+                    <div class="w-full md:w-1/5">
+                        <div class="sticky top-32 flex flex-col gap-6 font-sans text-xs uppercase tracking-widest text-gray-400">
+                            <a href="#" class="text-luxury-gold hover-target border-b border-luxury-gold pb-1 w-max">All Pieces</a>
+                            <a href="#" class="hover:text-luxury-gold transition-colors hover-target">Avant-Garde</a>
+                            <a href="#" class="hover:text-luxury-gold transition-colors hover-target">Ready-to-Wear</a>
+                            <a href="#" class="hover:text-luxury-gold transition-colors hover-target">Accessories</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Products Grid -->
+                    <div class="w-full md:w-4/5 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-16">
+                        
+                        <!-- Shop Item 1 -->
+                        <div class="group cursor-none nav-link video-card" data-target="page-product" data-product="midnight-gown">
+                            <div class="aspect-[3/4] w-full relative overflow-hidden bg-neutral-900 mb-6">
+                                <img src="assets/midnight_gown.png" class="w-full h-full object-cover cinematic-pan pointer-events-none" alt="The Midnight Gown">
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none z-20">
+                                    <span class="font-sans text-xs tracking-[0.2em] uppercase text-white border border-white px-6 py-3 hover-target hover:bg-white hover:text-black transition-colors pointer-events-auto">View Details</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-serif text-xl text-white">The Midnight Gown</h3>
+                                    <p class="font-sans text-xs text-gray-400 mt-1">Crushed Velvet</p>
+                                </div>
+                                <span class="font-sans text-sm text-luxury-gold">$2,450</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Shop Item 2 -->
+                        <div class="group cursor-none md:mt-16 nav-link video-card" data-target="page-product" data-product="obsidian-trench">
+                            <div class="aspect-[3/4] w-full relative overflow-hidden bg-neutral-900 mb-6">
+                                <img src="assets/obsidian_trench.png" class="w-full h-full object-cover cinematic-pan pointer-events-none" alt="Obsidian Trench">
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none z-20">
+                                    <span class="font-sans text-xs tracking-[0.2em] uppercase text-white border border-white px-6 py-3 hover-target hover:bg-white hover:text-black transition-colors pointer-events-auto">View Details</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-serif text-xl text-white">Obsidian Trench</h3>
+                                    <p class="font-sans text-xs text-gray-400 mt-1">Wool Blend</p>
+                                </div>
+                                <span class="font-sans text-sm text-luxury-gold">$1,890</span>
+                            </div>
+                        </div>
+
+                        <!-- Shop Item 3 -->
+                        <div class="group cursor-none nav-link video-card" data-target="page-product" data-product="silk-blouse">
+                            <div class="aspect-[3/4] w-full relative overflow-hidden bg-neutral-900 mb-6">
+                                <img src="assets/silk_blouse.png" class="w-full h-full object-cover cinematic-pan pointer-events-none" alt="Ivory Silk Blouse">
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none z-20">
+                                    <span class="font-sans text-xs tracking-[0.2em] uppercase text-white border border-white px-6 py-3 hover-target hover:bg-white hover:text-black transition-colors pointer-events-auto">View Details</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-serif text-xl text-white">Ivory Silk Blouse</h3>
+                                    <p class="font-sans text-xs text-gray-400 mt-1">Pure Mulberry Silk</p>
+                                </div>
+                                <span class="font-sans text-sm text-luxury-gold">$850</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Shop Item 4 -->
+                        <div class="group cursor-none md:mt-16 nav-link video-card" data-target="page-product" data-product="crimson-evening">
+                            <div class="aspect-[3/4] w-full relative overflow-hidden bg-neutral-900 mb-6">
+                                <img src="assets/crimson_evening.png" class="w-full h-full object-cover cinematic-pan pointer-events-none" alt="Crimson Evening Wear">
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none z-20">
+                                    <span class="font-sans text-xs tracking-[0.2em] uppercase text-white border border-white px-6 py-3 hover-target hover:bg-white hover:text-black transition-colors pointer-events-auto">View Details</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-serif text-xl text-white">Crimson Evening Wear</h3>
+                                    <p class="font-sans text-xs text-gray-400 mt-1">Satin &amp; Lace</p>
+                                </div>
+                                <span class="font-sans text-sm text-luxury-gold">$3,200</span>
+                            </div>
+                        </div>
+
+                        <!-- Shop Item 5 -->
+                        <div class="group cursor-none nav-link video-card" data-target="page-product" data-product="avantgarde-jacket">
+                            <div class="aspect-[3/4] w-full relative overflow-hidden bg-neutral-900 mb-6">
+                                <img src="assets/avantgarde_jacket.png" class="w-full h-full object-cover cinematic-pan pointer-events-none" alt="Avant-Garde Jacket">
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none z-20">
+                                    <span class="font-sans text-xs tracking-[0.2em] uppercase text-white border border-white px-6 py-3 hover-target hover:bg-white hover:text-black transition-colors pointer-events-auto">View Details</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-serif text-xl text-white">Avant-Garde Jacket</h3>
+                                    <p class="font-sans text-xs text-gray-400 mt-1">Structured Neoprene</p>
+                                </div>
+                                <span class="font-sans text-sm text-luxury-gold">$1,450</span>
+                            </div>
+                        </div>
+
+                        <!-- Shop Item 6 -->
+                        <div class="group cursor-none md:mt-16 nav-link video-card" data-target="page-product" data-product="cashmere-overcoat">
+                            <div class="aspect-[3/4] w-full relative overflow-hidden bg-neutral-900 mb-6">
+                                <img src="assets/cashmere_overcoat.png" class="w-full h-full object-cover cinematic-pan pointer-events-none" alt="Cashmere Overcoat">
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none z-20">
+                                    <span class="font-sans text-xs tracking-[0.2em] uppercase text-white border border-white px-6 py-3 hover-target hover:bg-white hover:text-black transition-colors pointer-events-auto">View Details</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-serif text-xl text-white">Cashmere Overcoat</h3>
+                                    <p class="font-sans text-xs text-gray-400 mt-1">Pure Mongolian Cashmere</p>
+                                </div>
+                                <span class="font-sans text-sm text-luxury-gold">$4,100</span>
+                            </div>
+                        </div>
+
+                        <!-- Shop Item 7 -->
+                        <div class="group cursor-none nav-link video-card" data-target="page-product" data-product="summer-silhouette">
+                            <div class="aspect-[3/4] w-full relative overflow-hidden bg-neutral-900 mb-6">
+                                <img src="assets/summer_silhouette.png" class="w-full h-full object-cover cinematic-pan pointer-events-none" alt="Summer Silhouette">
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none z-20">
+                                    <span class="font-sans text-xs tracking-[0.2em] uppercase text-white border border-white px-6 py-3 hover-target hover:bg-white hover:text-black transition-colors pointer-events-auto">View Details</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-serif text-xl text-white">Summer Silhouette</h3>
+                                    <p class="font-sans text-xs text-gray-400 mt-1">Lightweight Linen</p>
+                                </div>
+                                <span class="font-sans text-sm text-luxury-gold">$950</span>
+                            </div>
+                        </div>
+
+                        <!-- Shop Item 8 -->
+                        <div class="group cursor-none md:mt-16 nav-link video-card" data-target="page-product" data-product="obsidian-biker">
+                            <div class="aspect-[3/4] w-full relative overflow-hidden bg-neutral-900 mb-6">
+                                <img src="assets/obsidian_biker.png" class="w-full h-full object-cover cinematic-pan pointer-events-none" alt="The Obsidian Biker">
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center pointer-events-none z-20">
+                                    <span class="font-sans text-xs tracking-[0.2em] uppercase text-white border border-white px-6 py-3 hover-target hover:bg-white hover:text-black transition-colors pointer-events-auto">View Details</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-serif text-xl text-white">The Obsidian Biker</h3>
+                                    <p class="font-sans text-xs text-gray-400 mt-1">Full-Grain Leather</p>
+                                </div>
+                                <span class="font-sans text-sm text-luxury-gold">$2,800</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-product" class="page-view hidden bg-luxury-black z-10 relative">
+            <div class="flex flex-col md:flex-row min-h-screen">
+                <div class="w-full md:w-1/2 h-[60vh] md:h-screen sticky top-0 overflow-hidden">
+                    <img id="product-image" src="assets/midnight_gown.png" class="w-full h-full object-cover cinematic-pan" alt="The Midnight Gown">
+                    <div class="absolute inset-0 bg-gradient-to-t from-luxury-black via-transparent to-transparent md:hidden"></div>
+                </div>
+                
+                <div class="w-full md:w-1/2 p-8 md:p-24 flex flex-col justify-center bg-luxury-black relative z-10 min-h-screen">
+                    <button class="nav-link flex items-center gap-2 text-gray-400 hover:text-luxury-gold transition-colors w-max mb-12 hover-target" data-target="page-shop">
+                        <span class="w-6 h-[1px] bg-current"></span>
+                        <span class="font-sans text-[10px] uppercase tracking-widest">Back to Collection</span>
+                    </button>
+                    
+                    <h1 id="product-title" class="font-serif text-4xl md:text-6xl text-white mb-2">The Midnight Gown</h1>
+                    <p id="product-price" class="font-sans text-xl text-luxury-gold mb-8">$2,450</p>
+                    
+                    <p id="product-description" class="font-sans text-sm text-gray-400 leading-relaxed font-light mb-12 max-w-md">
+                        A masterclass in shadow and form. Crafted from pure midnight-blue crushed velvet, this gown features an asymmetric drape that cascades like liquid night. The internal corset ensures an impeccable, structured fit beneath the flowing exterior.
+                    </p>
+                    
+                    <div class="mb-12">
+                        <span class="font-sans text-xs uppercase tracking-widest text-white mb-4 block">Select Size (IT)</span>
+                        <div id="size-selector" class="flex gap-4">
+                            <button class="size-btn w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-xs font-sans hover:border-luxury-gold hover:text-luxury-gold transition-colors hover-target" data-size="38">38</button>
+                            <button class="size-btn w-10 h-10 rounded-full border border-luxury-gold bg-luxury-gold text-black flex items-center justify-center text-xs font-sans hover-target selected" data-size="40">40</button>
+                            <button class="size-btn w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-xs font-sans hover:border-luxury-gold hover:text-luxury-gold transition-colors hover-target" data-size="42">42</button>
+                            <button class="size-btn w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center text-xs font-sans hover:border-luxury-gold hover:text-luxury-gold transition-colors opacity-50 cursor-not-allowed" data-size="44" disabled>44</button>
+                        </div>
+                    </div>
+                    
+                    <button id="add-to-cart-btn" class="w-full border border-white text-white py-5 font-sans text-xs tracking-[0.2em] uppercase hover-target hover:bg-white hover:text-black transition-colors duration-300 mb-12">
+                        Add to Atelier Cart
+                    </button>
+                    
+                    <div class="border-t border-white/20">
+                        <div class="product-accordion py-5 border-b border-white/20 flex flex-col hover-target cursor-none text-white">
+                            <div class="flex justify-between items-center">
+                                <span class="font-sans text-xs uppercase tracking-widest hover:text-luxury-gold transition-colors">Details & Composition</span>
+                                <span class="accordion-icon text-xl font-light transition-transform duration-300">+</span>
+                            </div>
+                            <div class="accordion-content">
+                                <p class="font-sans text-sm text-gray-400 leading-relaxed font-light pt-4">Outer: 100% Crushed Silk Velvet. Lining: 100% Silk Charmeuse. Internal Corset: Boned with steel. Dry clean only. Made in Italy.</p>
+                            </div>
+                        </div>
+                        <div class="product-accordion py-5 border-b border-white/20 flex flex-col hover-target cursor-none text-white">
+                            <div class="flex justify-between items-center">
+                                <span class="font-sans text-xs uppercase tracking-widest hover:text-luxury-gold transition-colors">Shipping & Returns</span>
+                                <span class="accordion-icon text-xl font-light transition-transform duration-300">+</span>
+                            </div>
+                            <div class="accordion-content">
+                                <p class="font-sans text-sm text-gray-400 leading-relaxed font-light pt-4">Complimentary white-glove shipping worldwide. Full refund within 14 days of delivery in original condition. Bespoke alterations available.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-legacy" class="page-view hidden bg-luxury-black z-10 relative">
+            <div class="h-[70vh] w-full relative overflow-hidden flex items-center justify-center">
+                <img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1974&auto=format&fit=crop" class="absolute w-full h-full object-cover opacity-40 parallax-bg" alt="Atelier Archive">
+                <h1 class="font-serif text-6xl md:text-8xl text-white italic relative z-10 tracking-wide mix-blend-overlay">The Legacy</h1>
+            </div>
+
+            <div class="max-w-4xl mx-auto py-32 px-6">
+                <div class="flex flex-col md:flex-row gap-16 items-start">
+                    <div class="w-full md:w-1/3">
+                        <h2 class="font-sans text-xs tracking-[0.4em] uppercase text-luxury-gold border-b border-luxury-gold pb-4 mb-4">Established 1994</h2>
+                        <p class="font-serif text-3xl text-white italic">A heritage of subversion and grace.</p>
+                    </div>
+                    <div class="w-full md:w-2/3">
+                        <p class="font-sans text-gray-400 font-light leading-loose mb-8">
+                            Founded in the heart of Milan by visionary artisan Elena Rostova, AURA began as a small, secretive atelier catering exclusively to the avant-garde elite. We rejected the mass production of the 90s, focusing instead on architectural silhouettes and the revival of ancient weaving techniques.
+                        </p>
+                        <p class="font-sans text-gray-400 font-light leading-loose mb-8">
+                            Every garment is a rebellion against the ordinary. We source our silks from centuries-old mills in Como and our wool from sustainable, high-altitude farms. True luxury is time, patience, and the touch of a master's hand.
+                        </p>
+                        <img src="https://images.unsplash.com/photo-1612423284934-2850a4ea6b0f?q=80&w=2070&auto=format&fit=crop" class="w-full h-auto mt-12 mb-8 opacity-80 hover:opacity-100 transition-opacity duration-700 grayscale hover:grayscale-0" alt="Seamstress at work">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-care" class="page-view hidden bg-luxury-black pt-40 pb-24 px-6 md:px-20 z-10 relative">
+            <div class="max-w-screen-xl mx-auto">
+                <div class="text-center mb-24">
+                    <h1 class="font-serif text-5xl md:text-7xl text-white italic mb-6">Client Care</h1>
+                    <p class="font-sans text-sm text-gray-400 tracking-widest uppercase">The AURA Concierge Service</p>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-20">
+                    <!-- Contact Form -->
+                    <div class="w-full md:w-1/2">
+                        <h2 class="font-serif text-2xl text-white mb-8">Inquire</h2>
+                        <form class="flex flex-col gap-6" onsubmit="event.preventDefault();">
+                            <div class="flex flex-col md:flex-row gap-6">
+                                <input type="text" placeholder="First Name" class="luxury-input w-full hover-target cursor-none">
+                                <input type="text" placeholder="Last Name" class="luxury-input w-full hover-target cursor-none">
+                            </div>
+                            <input type="email" placeholder="Email Address" class="luxury-input w-full hover-target cursor-none">
+                            <select class="luxury-input w-full hover-target cursor-none appearance-none bg-transparent">
+                                <option class="bg-black text-white">Bespoke Inquiry</option>
+                                <option class="bg-black text-white">Order Status</option>
+                                <option class="bg-black text-white">Press & Media</option>
+                            </select>
+                            <textarea placeholder="Your Message" rows="4" class="luxury-input w-full hover-target cursor-none resize-none"></textarea>
+                            <button type="submit" class="mt-4 border border-white text-white py-4 font-sans text-xs tracking-[0.2em] uppercase hover-target hover:bg-white hover:text-black transition-colors duration-300">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- FAQ -->
+                    <div class="w-full md:w-1/2">
+                        <h2 class="font-serif text-2xl text-white mb-8">Frequently Asked</h2>
+                        <div class="border-t border-white/20">
+                            <div class="faq-item py-6 border-b border-white/20 hover-target cursor-none">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-sans text-xs uppercase tracking-widest text-white">International Shipping</span>
+                                    <span class="faq-icon text-xl font-light text-white transition-transform duration-300">+</span>
+                                </div>
+                                <div class="accordion-content">
+                                    <p class="font-sans text-sm text-gray-400 leading-relaxed font-light pt-2">We provide complimentary white-glove shipping worldwide. All orders are fully insured and require a signature upon delivery.</p>
+                                </div>
+                            </div>
+                            <div class="faq-item py-6 border-b border-white/20 hover-target cursor-none">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-sans text-xs uppercase tracking-widest text-white">Bespoke Alterations</span>
+                                    <span class="faq-icon text-xl font-light text-white transition-transform duration-300">+</span>
+                                </div>
+                                <div class="accordion-content">
+                                    <p class="font-sans text-sm text-gray-400 leading-relaxed font-light pt-2">Every AURA garment can be tailored to your exact measurements. Our master artisans in Milan offer complimentary adjustments within 60 days of purchase.</p>
+                                </div>
+                            </div>
+                            <div class="faq-item py-6 border-b border-white/20 hover-target cursor-none">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-sans text-xs uppercase tracking-widest text-white">Returns & Archives</span>
+                                    <span class="faq-icon text-xl font-light text-white transition-transform duration-300">+</span>
+                                </div>
+                                <div class="accordion-content">
+                                    <p class="font-sans text-sm text-gray-400 leading-relaxed font-light pt-2">Returns accepted within 14 days of delivery, in original condition with all tags attached. Archive pieces and bespoke orders are final sale.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="border-t border-white border-opacity-10 py-16 px-6 md:px-20 relative overflow-hidden bg-luxury-black z-20">
+        <div class="max-w-screen-2xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+            <a href="#" class="font-serif text-3xl tracking-[0.2em] font-bold text-white hover-target nav-link" data-target="page-home">AURA</a>
+            
+            <div class="flex gap-8">
+                <a href="#" class="font-sans text-xs tracking-widest text-gray-400 uppercase hover:text-luxury-gold transition-colors hover-target">Instagram</a>
+                <a href="#" class="font-sans text-xs tracking-widest text-gray-400 uppercase hover:text-luxury-gold transition-colors hover-target">Pinterest</a>
+                <a href="#" class="font-sans text-xs tracking-widest text-gray-400 uppercase hover:text-luxury-gold transition-colors hover-target">Journal</a>
+            </div>
+            
+            <p class="font-sans text-xs text-gray-600 uppercase tracking-widest">&copy; 2026 Aura Luxury. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <div id="toast" class="toast">Item added to cart</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        // --- PRODUCT CATALOG ---
+        const products = {
+            'midnight-gown': { title: 'The Midnight Gown', price: '$2,450', priceNum: 2450, image: 'assets/midnight_gown.png', material: 'Crushed Velvet & Silk', desc: 'A masterclass in shadow and form. Crafted from pure midnight-blue crushed velvet, this gown features an asymmetric drape that cascades like liquid night. The internal corset ensures an impeccable, structured fit beneath the flowing exterior.' },
+            'obsidian-trench': { title: 'Obsidian Trench', price: '$1,890', priceNum: 1890, image: 'assets/obsidian_trench.png', material: 'Tailored Wool Blend', desc: 'An architectural statement in motion. This tailored trench is constructed from a refined wool blend with bonded seams, offering both protection and sculptural elegance. The oversized silhouette drapes effortlessly.' },
+            'silk-blouse': { title: 'Ivory Silk Blouse', price: '$850', priceNum: 850, image: 'assets/silk_blouse.png', material: 'Pure Mulberry Silk', desc: 'Whisper-light and luminous. This blouse is woven from the finest mulberry silk, featuring a fluid drape and mother-of-pearl buttons. The relaxed cut offers understated luxury for any occasion.' },
+            'crimson-evening': { title: 'Crimson Evening Wear', price: '$3,200', priceNum: 3200, image: 'assets/crimson_evening.png', material: 'Satin & Lace', desc: 'A symphony of passion and precision. This floor-length evening gown in deep crimson combines smooth satin with intricate Chantilly lace overlays, creating a silhouette that commands every room.' },
+            'avantgarde-jacket': { title: 'Avant-Garde Jacket', price: '$1,450', priceNum: 1450, image: 'assets/avantgarde_jacket.png', material: 'Structured Neoprene', desc: 'The future of tailoring. This avant-garde jacket uses bonded neoprene with geometric laser-cut panels, creating sharp architectural lines that defy conventional fashion boundaries.' },
+            'cashmere-overcoat': { title: 'Cashmere Overcoat', price: '$4,100', priceNum: 4100, image: 'assets/cashmere_overcoat.png', material: 'Pure Mongolian Cashmere', desc: 'Unmatched warmth, unrivaled softness. Sourced from high-altitude Mongolian herds, this double-faced cashmere overcoat envelopes you in cloud-like luxury with a clean, minimalist silhouette.' },
+            'summer-silhouette': { title: 'Summer Silhouette', price: '$950', priceNum: 950, image: 'assets/summer_silhouette.png', material: 'Lightweight Linen', desc: 'Effortless summer elegance. This lightweight linen silhouette captures the ease of Mediterranean living with its relaxed drape and naturally breathable fabric, perfect for warm evenings.' },
+            'obsidian-biker': { title: 'The Obsidian Biker', price: '$2,800', priceNum: 2800, image: 'assets/obsidian_biker.png', material: 'Full-Grain Leather', desc: 'Rebellion refined. Crafted from Italian full-grain leather with hand-polished silver hardware, this biker jacket balances raw edge with meticulous craftsmanship. Silk-lined for ultimate comfort.' }
+        };
+
+        // --- CART STATE ---
+        let cart = [
+            { id: 'midnight-gown', size: '40', qty: 1 },
+            { id: 'obsidian-trench', size: '42', qty: 1 }
+        ];
+        let selectedSize = '40';
+
+        function updateCartUI() {
+            const cartCountEl = document.getElementById('cart-count');
+            const cartBody = document.getElementById('cart-body');
+            const subtotalEl = document.getElementById('cart-subtotal');
+            
+            cartCountEl.textContent = cart.length;
+            
+            let total = 0;
+            let html = '';
+            cart.forEach((item, idx) => {
+                const p = products[item.id];
+                if (!p) return;
+                total += p.priceNum;
+                html += `
+                <div class="flex gap-6 group" data-cart-idx="${idx}">
+                    <div class="w-24 h-32 bg-neutral-900 overflow-hidden flex-shrink-0">
+                        <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="${p.title}">
+                    </div>
+                    <div class="flex flex-col justify-between flex-1">
+                        <div>
+                            <h3 class="font-serif text-lg text-white">${p.title}</h3>
+                            <p class="font-sans text-xs text-gray-400 mt-1 uppercase tracking-wider">Size: ${item.size} (IT)</p>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-sans text-sm text-luxury-gold">${p.price}</span>
+                            <button class="cart-remove-btn font-sans text-[10px] uppercase tracking-widest text-gray-500 hover:text-white hover-target" data-idx="${idx}">Remove</button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            
+            if (cart.length === 0) {
+                html = '<div class="flex-1 flex items-center justify-center"><p class="font-sans text-sm text-gray-500 uppercase tracking-widest">Your atelier is empty</p></div>';
+            }
+            
+            cartBody.innerHTML = html;
+            subtotalEl.textContent = '$' + total.toLocaleString();
+            
+            // Re-attach remove handlers
+            document.querySelectorAll('.cart-remove-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const idx = parseInt(btn.dataset.idx);
+                    cart.splice(idx, 1);
+                    updateCartUI();
+                    attachHoverTargets();
+                });
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // --- 1. Custom Cursor Logic (with touch detection) ---
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        
+        if (isTouchDevice) {
+            cursorDot.style.display = 'none';
+            cursorOutline.style.display = 'none';
+            document.body.style.cursor = 'auto';
+        } else {
+            window.addEventListener('mousemove', (e) => {
+                const posX = e.clientX;
+                const posY = e.clientY;
+                cursorDot.style.left = `${posX}px`;
+                cursorDot.style.top = `${posY}px`;
+                cursorOutline.animate({
+                    left: `${posX}px`,
+                    top: `${posY}px`
+                }, { duration: 500, fill: "forwards" });
+            });
+        }
+
+        function attachHoverTargets() {
+            document.querySelectorAll('.hover-target').forEach(el => {
+                if(el.dataset.hoverAttached) return;
+                el.addEventListener('mouseenter', () => {
+                    cursorOutline.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                    cursorOutline.style.backgroundColor = 'rgba(212, 175, 55, 0.1)';
+                });
+                el.addEventListener('mouseleave', () => {
+                    cursorOutline.style.transform = 'translate(-50%, -50%) scale(1)';
+                    cursorOutline.style.backgroundColor = 'transparent';
+                });
+                el.dataset.hoverAttached = 'true';
+            });
+        }
+        attachHoverTargets();
+
+        // --- 2. Canvas Gold Dust Background ---
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particlesArray;
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let mouse = { x: null, y: null, radius: (canvas.height/80) * (canvas.width/80) };
+
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = event.x;
+            mouse.y = event.y;
+        });
+
+        class Particle {
+            constructor(x, y, directionX, directionY, size, color) {
+                this.x = x; this.y = y;
+                this.directionX = directionX; this.directionY = directionY;
+                this.size = size; this.color = color;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = '#D4AF37';
+                ctx.fill();
+            }
+            update() {
+                if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
+                if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx*dx + dy*dy);
+                if (distance < mouse.radius + this.size) {
+                    if (mouse.x < this.x && this.x < canvas.width - this.size * 10) this.x += 1;
+                    if (mouse.x > this.x && this.x > this.size * 10) this.x -= 1;
+                    if (mouse.y < this.y && this.y < canvas.height - this.size * 10) this.y += 1;
+                    if (mouse.y > this.y && this.y > this.size * 10) this.y -= 1;
+                }
+                this.x += this.directionX;
+                this.y += this.directionY;
+                this.draw();
+            }
+        }
+
+        function initCanvas() {
+            particlesArray = [];
+            let numberOfParticles = Math.min((canvas.height * canvas.width) / 15000, 200);
+            for (let i = 0; i < numberOfParticles; i++) {
+                let size = (Math.random() * 2) + 0.5;
+                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+                let directionX = (Math.random() * 0.4) - 0.2;
+                let directionY = (Math.random() * 0.4) - 0.2;
+                particlesArray.push(new Particle(x, y, directionX, directionY, size, '#D4AF37'));
+            }
+        }
+
+        function animateCanvas() {
+            requestAnimationFrame(animateCanvas);
+            ctx.clearRect(0,0,innerWidth, innerHeight);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+        }
+        initCanvas();
+        animateCanvas();
+        window.addEventListener('resize', () => {
+            canvas.width = innerWidth;
+            canvas.height = innerHeight;
+            initCanvas();
+        });
+
+        // --- 3. UI Interactions (Menu & Cart) ---
+        gsap.registerPlugin(ScrollTrigger);
+
+        const orbitalToggle = document.getElementById('orbital-toggle');
+        const orbitalItems = document.querySelectorAll('.orbital-item');
+        const lines = orbitalToggle.querySelectorAll('span');
+        let orbitalOpen = false;
+
+        gsap.set(orbitalItems, { xPercent: -50, yPercent: -50 });
+
+        function closeMenu() {
+            if (!orbitalOpen) return;
+            orbitalOpen = false;
+            gsap.to(orbitalToggle, { rotation: 0, borderColor: 'rgba(255,255,255,0.4)', duration: 0.6, ease: "power3.inOut" });
+            gsap.to(lines[0], { y: 0, rotation: 0, backgroundColor: '#ffffff', duration: 0.4 });
+            gsap.to(lines[1], { y: 0, rotation: 0, backgroundColor: '#ffffff', duration: 0.4 });
+            gsap.to('#orbital-hub', { scale: 0.5, opacity: 0, duration: 0.5, ease: "power2.in" });
+            gsap.to(orbitalItems, { x: 0, y: 0, opacity: 0, pointerEvents: 'none', duration: 0.4, ease: 'power2.in' });
+        }
+
+        orbitalToggle.addEventListener('click', () => {
+            orbitalOpen = !orbitalOpen;
+            if (orbitalOpen) {
+                gsap.to(orbitalToggle, { rotation: 90, borderColor: '#D4AF37', duration: 0.6, ease: "back.out(1.5)" });
+                gsap.to(lines[0], { y: 3, rotation: 45, backgroundColor: '#D4AF37', duration: 0.4 });
+                gsap.to(lines[1], { y: -3, rotation: -45, backgroundColor: '#D4AF37', duration: 0.4 });
+                gsap.to('#orbital-hub', { scale: 1, opacity: 1, duration: 0.8, ease: "power3.out" });
+                
+                orbitalItems.forEach((item, index) => {
+                    const angleDeg = 90 + (index * 45);
+                    const angle = angleDeg * (Math.PI / 180);
+                    const radius = 135; 
+                    gsap.to(item, {
+                        x: Math.cos(angle) * radius, 
+                        y: Math.sin(angle) * radius, 
+                        opacity: 1, pointerEvents: 'auto', duration: 0.8, ease: 'back.out(1.2)', delay: 0.1 + (index * 0.08)
+                    });
+                });
+            } else {
+                closeMenu();
+            }
+        });
+
+        // Cart Drawer
+        const cartToggle = document.getElementById('cart-toggle-btn');
+        const cartClose = document.getElementById('cart-close-btn');
+        const cartOverlay = document.getElementById('cart-overlay');
+        
+        cartToggle.addEventListener('click', () => {
+            cartOverlay.classList.add('open');
+            closeMenu();
+        });
+        cartClose.addEventListener('click', () => cartOverlay.classList.remove('open'));
+
+        // --- Add to Cart ---
+        document.getElementById('add-to-cart-btn').addEventListener('click', () => {
+            const productTitle = document.getElementById('product-title').textContent;
+            const productId = Object.keys(products).find(k => products[k].title === productTitle);
+            if (productId) {
+                cart.push({ id: productId, size: selectedSize, qty: 1 });
+                updateCartUI();
+                showToast(`${products[productId].title} added to cart`);
+                document.getElementById('cart-overlay').classList.add('open');
+                attachHoverTargets();
+            }
+        });
+
+        // --- Size Selector ---
+        document.getElementById('size-selector').addEventListener('click', (e) => {
+            const btn = e.target.closest('.size-btn');
+            if (!btn || btn.disabled) return;
+            
+            document.querySelectorAll('.size-btn').forEach(b => {
+                b.classList.remove('selected', 'border-luxury-gold', 'bg-luxury-gold', 'text-black');
+                b.classList.add('border-gray-600');
+            });
+            btn.classList.add('selected', 'border-luxury-gold', 'bg-luxury-gold', 'text-black');
+            btn.classList.remove('border-gray-600');
+            selectedSize = btn.dataset.size;
+        });
+
+        // --- Product Page Accordion ---
+        document.querySelectorAll('.product-accordion').forEach(acc => {
+            acc.addEventListener('click', () => {
+                const content = acc.querySelector('.accordion-content');
+                const icon = acc.querySelector('.accordion-icon');
+                const isOpen = content.classList.contains('open');
+                
+                // Close all others in product page
+                document.querySelectorAll('.product-accordion .accordion-content').forEach(c => c.classList.remove('open'));
+                document.querySelectorAll('.product-accordion .accordion-icon').forEach(i => i.textContent = '+');
+                
+                if (!isOpen) {
+                    content.classList.add('open');
+                    icon.textContent = '−';
+                }
+            });
+        });
+
+        // --- FAQ Accordion (Care Page) ---
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const content = item.querySelector('.accordion-content');
+                const icon = item.querySelector('.faq-icon');
+                const isOpen = content.classList.contains('open');
+                
+                // Close all other FAQ items
+                document.querySelectorAll('.faq-item .accordion-content').forEach(c => c.classList.remove('open'));
+                document.querySelectorAll('.faq-item .faq-icon').forEach(i => i.textContent = '+');
+                
+                if (!isOpen) {
+                    content.classList.add('open');
+                    icon.textContent = '−';
+                }
+            });
+        });
+
+        // --- 4. Global Animations Setup ---
+        function initScrollAnimations() {
+            ScrollTrigger.getAll().forEach(t => t.kill());
+            
+            gsap.utils.toArray('.page-view:not(.hidden) .reveal-wrap').forEach(wrap => {
+                const img = wrap.querySelector('.reveal-img');
+                gsap.fromTo(wrap, 
+                    { clipPath: "polygon(0 100%, 100% 100%, 100% 100%, 0 100%)" },
+                    { 
+                        clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
+                        duration: 1.5, ease: "power3.inOut",
+                        scrollTrigger: { trigger: wrap, start: "top 85%" }
+                    }
+                );
+                if (img) {
+                    gsap.fromTo(img,
+                        { scale: 1.3 },
+                        { scale: 1, duration: 1.5, ease: "power3.inOut", scrollTrigger: { trigger: wrap, start: "top 85%" } }
+                    );
+                }
+            });
+
+            gsap.utils.toArray('.page-view:not(.hidden) .section-title, .page-view:not(.hidden) .quote-text').forEach(text => {
+                gsap.fromTo(text, 
+                    { y: 40, opacity: 0 },
+                    { y: 0, opacity: 1, duration: 1, ease: "power3.out", scrollTrigger: { trigger: text, start: "top 90%" } }
+                );
+            });
+
+            gsap.utils.toArray('.page-view:not(.hidden) .parallax-bg').forEach(bg => {
+                gsap.to(bg, {
+                    yPercent: 20, ease: "none",
+                    scrollTrigger: { trigger: bg.parentElement, start: "top bottom", end: "bottom top", scrub: true }
+                });
+            });
+
+            const horizontalScrollWrapper = document.getElementById('lookbook-wrapper');
+            const horizontalContainer = document.getElementById('horizontal-scroll');
+            if (horizontalScrollWrapper && !horizontalScrollWrapper.closest('.hidden')) {
+                const panels = gsap.utils.toArray('#page-home .horizontal-panel');
+                if (panels.length > 0) {
+                    gsap.to(panels, {
+                        xPercent: -100 * (panels.length - 1), ease: "none",
+                        scrollTrigger: {
+                            trigger: horizontalScrollWrapper,
+                            pin: true, scrub: 1, snap: 1 / (panels.length - 1),
+                            end: () => "+=" + horizontalContainer.offsetWidth
+                        }
+                    });
+                }
+            }
+        }
+
+        // Hover-to-play Video Logic
+        document.querySelectorAll('.video-card').forEach(card => {
+            const video = card.querySelector('video');
+            if (video) {
+                if (isTouchDevice) {
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                video.play().catch(err => {});
+                            } else {
+                                video.pause();
+                            }
+                        });
+                    }, { threshold: 0.2 });
+                    observer.observe(card);
+                } else {
+                    let playPromise;
+                    card.addEventListener('mouseenter', () => {
+                        playPromise = video.play();
+                        if (playPromise !== undefined) playPromise.catch(err => {});
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        if (playPromise !== undefined) {
+                            playPromise.then(() => { video.pause(); video.currentTime = 0.001; }).catch(err => {});
+                        } else {
+                            video.pause(); video.currentTime = 0.001;
+                        }
+                    });
+                }
+            }
+        });
+
+        // --- 5. SPA Routing System ---
+        function navigateTo(targetId, productSlug) {
+            const currentView = document.querySelector('.page-view:not(.hidden)');
+            const targetView = document.getElementById(targetId);
+            
+            if (!targetView || currentView === targetView) return;
+
+            closeMenu();
+            cartOverlay.classList.remove('open');
+
+            // Update product page if navigating to it
+            if (targetId === 'page-product' && productSlug && products[productSlug]) {
+                const p = products[productSlug];
+                document.getElementById('product-image').src = p.image;
+                document.getElementById('product-image').alt = p.title;
+                document.getElementById('product-title').textContent = p.title;
+                document.getElementById('product-price').textContent = p.price;
+                document.getElementById('product-description').textContent = p.desc;
+                // Close any open accordions
+                document.querySelectorAll('.product-accordion .accordion-content').forEach(c => c.classList.remove('open'));
+                document.querySelectorAll('.product-accordion .accordion-icon').forEach(i => i.textContent = '+');
+            }
+            
+            gsap.to(currentView, {
+                opacity: 0,
+                duration: 0.4,
+                ease: "power2.inOut",
+                onComplete: () => {
+                    currentView.classList.add('hidden');
+                    targetView.classList.remove('hidden');
+                    
+                    window.scrollTo({ top: 0, behavior: 'instant' });
+                    
+                    setTimeout(() => {
+                        initScrollAnimations();
+                        ScrollTrigger.refresh();
+                        
+                        if(targetId === 'page-home') {
+                            const splitTexts = document.querySelectorAll('#page-home .split-text');
+                            gsap.fromTo(splitTexts, 
+                                { y: 30, opacity: 0 }, 
+                                { y: 0, opacity: 1, duration: 1, ease: "power3.out", stagger: 0.1 }
+                            );
+                        }
+
+                        attachHoverTargets();
+                    }, 50);
+
+                    gsap.fromTo(targetView, 
+                        { opacity: 0, y: 20 },
+                        { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+                    );
+                }
+            });
+        }
+
+        // Attach SPA routing to links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = link.getAttribute('data-target');
+                const productSlug = link.getAttribute('data-product');
+                if (target) navigateTo(target, productSlug);
+            });
+        });
+
+        // Initial Setup
+        window.onload = () => {
+            updateCartUI();
+            
+            const tl = gsap.timeline();
+            tl.fromTo('.hero-video', { scale: 1.1 }, { scale: 1, duration: 2, ease: "power2.out" });
+            
+            const splitTexts = document.querySelectorAll('#page-home .split-text');
+            tl.fromTo(splitTexts, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: "power3.out", stagger: 0.1 }, "-=0.8");
+            
+            initScrollAnimations();
+        };
+
+    </script>
+</body>
+</html>
